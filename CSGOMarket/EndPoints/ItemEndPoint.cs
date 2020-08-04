@@ -24,32 +24,29 @@ namespace CSGOMarket.EndPoints
         #endregion
 
         #region Methods
-        public async Task<ItemInfo?> GetItemInfo(string itemId)
+        public async Task<ItemInfo?> GetItemInfoAsync(string itemId)
         {
             string endPoint = $"ItemInfo/{itemId}/{Client.Language}";
-            JObject downloadedObject = JObject.Parse(await HttpBuilder.SendRequest(endPoint));
+            string response = await HttpBuilder.SendRequest(endPoint);
 
+            if (response is null)
+                return null;
+
+            JObject downloadedObject = JObject.Parse(response);
             return downloadedObject.ContainsKey("result") ? null : downloadedObject.ToObject<ItemInfo>();
         }
 
-        public async Task<bool> BuyItem(string itemId, decimal price, long steamId)
+        public async Task<bool> BuyItemAsync(string itemId, decimal price, long steamId, string token)
         {
             return await SendRequestBuyItemAsync($"Buy/{itemId}/{price}", new Dictionary<string, string>
             {
-                {"partner", steamId.ToString()}
-            });
-        }
-
-        public async Task<bool> BuyItem(string itemId, decimal price, string tradeUrl)
-        {
-            return await SendRequestBuyItemAsync($"Buy/{itemId}/{price}", new Dictionary<string, string>
-            {
-                {"token", tradeUrl}
+                { "partner", steamId.ToString()},
+                { "token", token }
             });
         }
 
         private async Task<bool> SendRequestBuyItemAsync(string endpoint, Dictionary<string, string> args)
-            =>  JObject.Parse(await HttpBuilder.SendRequest(endpoint, args))["success"].ToString() == "ok";
+            =>  JObject.Parse(await HttpBuilder.SendRequest(endpoint, args))["result"].ToString() == "ok";
         #endregion
     }
 }

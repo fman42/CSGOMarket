@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using System.Net.Http;
 
 namespace CSGOMarket.Tools
 {
@@ -15,12 +16,14 @@ namespace CSGOMarket.Tools
             Client = client;
         }
 
-        public async Task<string> SendRequest(string endpoint, Dictionary<string, string> args = null)
+        public async Task<string?> SendRequest(string endpoint, Dictionary<string, string> args = null)
         {
             args ??= new Dictionary<string, string>();
 
             Uri source = new Uri(Client.HttpClient.BaseAddress + $"/{endpoint}/?{BuildRequestRaw(args)}");
-            return await Client.HttpClient.GetStringAsync(source);
+            HttpResponseMessage response = await Client.HttpClient.GetAsync(source.ToString());
+
+            return response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : null;
         }
 
         private string BuildRequestRaw(Dictionary<string, string> args)
