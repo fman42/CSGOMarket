@@ -16,18 +16,18 @@ namespace CSGOMarket.EndPoints
         #endregion
 
         #region Init
-        public ItemEndPoint(AuthClient client)
+        public ItemEndPoint(CSGOMarketAuthClient client)
         {
             Client = client;
             HttpBuilder = new HttpBuilder(client);
         }
         #endregion
 
-        #region Methods
+        #region Public methods
         public async Task<ItemInfo?> GetItemInfoAsync(string itemId)
         {
             string endPoint = $"ItemInfo/{itemId}/{Client.Language}";
-            string response = await HttpBuilder.SendRequest(endPoint);
+            string? response = await HttpBuilder.SendRequest(endPoint);
 
             if (response is null)
                 return null;
@@ -45,8 +45,24 @@ namespace CSGOMarket.EndPoints
             });
         }
 
+        public async Task<long> GetBestSellOffer(string itemId) => await GetBestOffer(itemId, "Sell");
+
+        public async Task<long> GetBestBuyOffer(string itemId) => await GetBestOffer(itemId, "Buy");
+        #endregion
+
+        #region Private methods
         private async Task<bool> SendRequestBuyItemAsync(string endpoint, Dictionary<string, string> args)
-            =>  JObject.Parse(await HttpBuilder.SendRequest(endpoint, args))["result"].ToString() == "ok";
+            => JObject.Parse(await HttpBuilder.SendRequest(endpoint, args))["result"].ToString() == "ok";
+
+        private async Task<long> GetBestOffer(string itemId, string typeOffer)
+        {
+            string? response = await HttpBuilder.SendRequest($"Best{typeOffer}Offer/{itemId}");
+            if (response is null)
+                return -1;
+
+            JObject parsedResponse = JObject.Parse(response);
+            return parsedResponse.Value<bool>("success") ? parsedResponse.Value<long>("best_offer") : -1;
+        }
         #endregion
     }
 }

@@ -10,12 +10,15 @@ namespace CSGOMarket.Tools
 {
     internal class HttpBuilder
     {
+        #region Var
         private IClient Client { get; }
-        public HttpBuilder(IClient client)
-        {
-            Client = client;
-        }
+        #endregion
 
+        #region Init
+        public HttpBuilder(IClient client) => Client = client;
+        #endregion
+
+        #region Methods
         public async Task<string?> SendRequest(string endpoint, Dictionary<string, string> args = null)
         {
             args ??= new Dictionary<string, string>();
@@ -28,10 +31,12 @@ namespace CSGOMarket.Tools
 
         private string BuildRequestRaw(Dictionary<string, string> args)
         {
-            if (Client is AuthClient) args.Add("key", Client.SecretKey);
+            if (Client is CSGOMarketAuthClient)
+                args.Add("key", Client.SecretKey);
 
             return string.Join('&', args.Select(x =>
                 $"{HttpUtility.UrlEncode(x.Key)}={HttpUtility.UrlEncode(x.Value)}"));
         }
+        #endregion
     }
 }

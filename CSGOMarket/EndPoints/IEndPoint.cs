@@ -2,7 +2,7 @@
 
 namespace CSGOMarket.EndPoints
 {
-    interface IEndPoint
+    public interface IEndPoint
     {
         IClient Client { get; }
     }
