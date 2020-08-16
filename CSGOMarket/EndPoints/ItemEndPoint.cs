@@ -45,16 +45,16 @@ namespace CSGOMarket.EndPoints
             });
         }
 
-        public async Task<long> GetBestSellOffer(string itemId) => await GetBestOffer(itemId, "Sell");
+        public async Task<long> GetBestSellOfferAsync(string itemId) => await GetBestOfferAsync(itemId, "Sell");
 
-        public async Task<long> GetBestBuyOffer(string itemId) => await GetBestOffer(itemId, "Buy");
+        public async Task<long> GetBestBuyOfferAsync(string itemId) => await GetBestOfferAsync(itemId, "Buy");
         #endregion
 
         #region Private methods
         private async Task<bool> SendRequestBuyItemAsync(string endpoint, Dictionary<string, string> args)
             => JObject.Parse(await HttpBuilder.SendRequest(endpoint, args))["result"].ToString() == "ok";
 
-        private async Task<long> GetBestOffer(string itemId, string typeOffer)
+        private async Task<long> GetBestOfferAsync(string itemId, string typeOffer)
         {
             string? response = await HttpBuilder.SendRequest($"Best{typeOffer}Offer/{itemId}");
             if (response is null)
